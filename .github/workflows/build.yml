@@ -3,6 +3,7 @@ name: Build
 on:
   push:
     branches: [main]
+    tags: ["v*"]
   pull_request:
   workflow_dispatch:
 
@@ -50,3 +51,49 @@ jobs:
             build/bootloader/bootloader.bin
             build/partition_table/partition-table.bin
             build/flasher_args.json
+
+  release:
+    name: Publish release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: tab5_c6_ota-idf-v6.1
+          path: artifact
+
+      - name: Collect the files
+        run: |
+          mkdir release
+          cp artifact/tab5_c6_ota.bin artifact/flasher_args.json release/
+          cp artifact/bootloader/bootloader.bin artifact/partition_table/partition-table.bin release/
+          # The flash command, with the offsets the build itself reports
+          python3 - <<'PY' > release/flash.txt
+          import json
+          a = json.load(open("release/flasher_args.json"))
+          files = " ".join(f"{off} {path.split('/')[-1]}" for off, path in sorted(a["flash_files"].items(), key=lambda kv: int(kv[0], 16)))
+          print(f"esptool --chip esp32p4 --baud 460800 write_flash {files}")
+          PY
+          cat release/flash.txt
+          cd release && sha256sum *.bin > SHA256SUMS
+
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          prerelease: ${{ startsWith(github.ref_name, 'v0.') }}
+          generate_release_notes: true
+          files: release/*
+          body: |
+            Updates the firmware of the ESP32-C6 co-processor of the M5Stack Tab5 over SDIO. Flash it on its own, wait for
+            `[PASS]` in the serial log, then flash your own firmware over it. See the README.
+
+            **Not run on a Tab5 yet.** Built with ESP-IDF 6.1. The factory C6 firmware (ESP-Hosted 1.4.1) may not be able to talk to this
+            3.x host, and the C6 has no rollback.
+
+            The application embeds the ESP32-C6 ESP-Hosted v3.0.9 image published by ESPHome
+            (https://esphome.github.io/esp-hosted-firmware/), which is built from Espressif's Apache-2.0 esp-hosted-mcu.
+
+            Flash command: see `flash.txt` (run it from the folder with the downloaded files, add `--port <port>`). Checksums in `SHA256SUMS`.
