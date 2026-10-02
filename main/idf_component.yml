@@ -1,11 +1,5 @@
 dependencies:
   espressif/esp_hosted:
-    version: "==2.9.7"
+    version: "^3.0.9" # The C6 firmware should match this host version
     rules:
-      - if: "target in [esp32p4]"
-  espressif/esp_wifi_remote:
-    version: ">=0.10,<2.0"
-    rules:
-      - if: "target in [esp32p4]"
-  joltwallet/littlefs:
-    version: "*"
+      - if: "target == esp32p4"
