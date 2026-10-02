@@ -8,7 +8,7 @@ This application is independent of whatever firmware you run on the P4 afterward
 It is a fork and rework for the Tab5 of [crowpanel-p4-c6-sdio-ota](https://github.com/lboshuizen/crowpanel-p4-c6-sdio-ota) by
 lboshuizen, which does the same for the Elecrow CrowPanel 7" (see `NOTICE`).
 
-**Status: it has not been built in this repository and it has not been run on a Tab5.**
+**Status: it builds in CI with ESP-IDF 6.1 (see `.github/workflows/build.yml`). It has not been run on a Tab5.**
 
 ## Workflow: update the C6, then flash your firmware
 
