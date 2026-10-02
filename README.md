@@ -53,7 +53,7 @@ The OTA slots of the factory firmware: its partition table has two app slots of 
 You need `network_adapter.bin` for the ESP32-C6 from the same esp-hosted-mcu release as the host (`^3.0.9` in
 `main/idf_component.yml`, which resolves to 3.0.9 today). Prebuilt images are not included in this repository.
 
-**Option 1: a prebuilt image.** ESPHome publishes builds of the co-processor firmware, v3.0.9 is the version of the host:
+ESPHome publishes builds of the co-processor firmware, v3.0.9 is the version of the host:
 
 ```bash
 curl -L -o firmware/network_adapter.bin \
@@ -70,41 +70,9 @@ site may publish a newer build under the same name):
   controllers as well as Wi-Fi. This comes from looking at the file, it has not been run.
 - It embeds in this application and the application builds with it (ESP-IDF 6.1).
 
-**Option 2: build it** from Espressif's co-processor example. It enables Wi-Fi and **disables Bluetooth** by default, so for
-Bluetooth LE controllers:
-
-```bash
-# esp-hosted-mcu 3.0.9 (the espressif/esp_hosted component), ESP-IDF 5.5 or newer
-git clone --branch 3.0.9 https://github.com/espressif/esp-hosted-mcu   # or use the copy of the managed component
-cd esp-hosted-mcu/examples/ota/coprocessor_ota/cp
-```
-
-Add a file `sdkconfig.bt` next to `sdkconfig.defaults`:
-
-```text
-CONFIG_ESP_HOSTED_CP_FEAT_BT=y
-CONFIG_ESP_HOSTED_CP_BT_ENABLED=y
-CONFIG_ESP_HOSTED_CP_FEAT_BT_HCI_VHCI=y
-CONFIG_BT_ENABLED=y
-CONFIG_BT_CONTROLLER_ONLY=y
-```
-
-then build for the C6 with that file included:
-
-```bash
-idf.py -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.esp32c6;sdkconfig.bt" set-target esp32c6
-idf.py build
-```
-
-and copy the application image (`build/eh_cp_ota_coprocessor_ota.bin`, not the bootloader or partition table) to
-`firmware/network_adapter.bin`. Built like this with ESP-IDF 6.1 it is an ESP32-C6 image with DIO flash mode of 1,440,416 bytes (the C6
-slot is 1,572,864, so about 130 KB are spare), with Wi-Fi and the Bluetooth controller, and it embeds in this application. Its project
-name is `eh_cp_ota_coprocessor_ota`. It has not been run on a C6. The partition table of the example (`partitions_eh_cp_ota_4m.csv`) is not applied by an
-OTA, only the app slot is replaced, the C6 keeps the layout it has.
-
 **Check the image** (`esptool image_info`, or the log of this application when it starts): chip ESP32-C6, flash mode DIO
 (the CrowPanel author saw failed OTAs with QIO images, the factory image of the Tab5 is DIO), and not bigger than the slots of
-the C6 (1.5 MB). The ESPHome image is named `eh_cp_bt_wifi_hosted_hci_mcu`, a build from the example `eh_cp_ota_coprocessor_ota`, the application accepts both (any `eh_cp_` or `network_adapter` name).
+the C6 (1.5 MB). The application accepts any project name starting with `eh_cp_` (like the ESPHome image, `eh_cp_bt_wifi_hosted_hci_mcu`) or `network_adapter`.
 
 ## Build and flash
 
