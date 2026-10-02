@@ -1,0 +1,52 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  # Prebuilt ESP32-C6 co-processor image (ESP-Hosted v3.0.9). It only has to exist to compile: the app embeds it.
+  C6_FIRMWARE_URL: https://esphome.github.io/esp-hosted-firmware/v3.0.9/network_adapter_esp32c6.bin
+  C6_FIRMWARE_SHA256: 80e85881783840ff7c533878b679b9a6d72c426d0696e2f15ee064ca8b6c12db
+
+jobs:
+  build:
+    name: Build (ESP-IDF ${{ matrix.idf }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        idf: ["v6.1"]
+    container: espressif/idf:${{ matrix.idf }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch the C6 firmware image
+        run: |
+          curl -fsSL --retry 3 -o firmware/network_adapter.bin "$C6_FIRMWARE_URL"
+          echo "$(sha256sum firmware/network_adapter.bin | cut -d' ' -f1)  firmware/network_adapter.bin"
+          if ! echo "$C6_FIRMWARE_SHA256  firmware/network_adapter.bin" | sha256sum -c -; then
+            echo "::warning::The published image differs from the checksum in the README; building with it anyway"
+          fi
+
+      - name: Build
+        run: |
+          . $IDF_PATH/export.sh
+          idf.py set-target esp32p4
+          idf.py build
+
+      - name: Image sizes
+        run: |
+          . $IDF_PATH/export.sh
+          idf.py size
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tab5_c6_ota-idf-${{ matrix.idf }}
+          path: |
+            build/tab5_c6_ota.bin
+            build/bootloader/bootloader.bin
+            build/partition_table/partition-table.bin
+            build/flasher_args.json
