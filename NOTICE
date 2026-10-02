@@ -1,0 +1,12 @@
+Tab5 C6 OTA
+
+This repository is a standalone application under the Apache License 2.0 (LICENSE). It is a fork of, and is based on:
+
+- "crowpanel-p4-c6-sdio-ota" by lboshuizen (https://github.com/lboshuizen/crowpanel-p4-c6-sdio-ota, Apache-2.0),
+  an ESP32-C6 SDIO OTA tool for the Elecrow CrowPanel 7" ESP32-P4, whose approach (transport only, no Wi-Fi,
+  firmware pushed over the existing SDIO link) and phase structure are followed here.
+- Espressif's ESP-Hosted coprocessor OTA example (https://github.com/espressif/esp-hosted-mcu, Apache-2.0).
+
+Changes: reworked for the M5Stack Tab5 (pins and IO expander power sequence, ESP-Hosted 3.x), the firmware is embedded
+in the application instead of a LittleFS partition, image checks added, version comparison against the host. The
+CrowPanel LittleFS component, justfile and hardware notes were removed.
