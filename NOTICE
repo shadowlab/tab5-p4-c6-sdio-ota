@@ -10,3 +10,7 @@ This repository is a standalone application under the Apache License 2.0 (LICENS
 Changes: reworked for the M5Stack Tab5 (pins and IO expander power sequence, ESP-Hosted 3.x), the firmware is embedded
 in the application instead of a LittleFS partition, image checks added, version comparison against the host. The
 CrowPanel LittleFS component, justfile and hardware notes were removed.
+
+Releases also contain, unmodified, the ESP32-C6 ESP-Hosted v3.0.9 firmware (network_adapter_esp32c6.bin) published by ESPHome at
+https://esphome.github.io/esp-hosted-firmware/ , which is built from Espressif's esp-hosted-mcu (Apache-2.0). It is embedded in the
+updater application and also attached as a separate file.

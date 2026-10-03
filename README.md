@@ -14,12 +14,34 @@ lboshuizen, which does the same for the Elecrow CrowPanel 7" (see `NOTICE`).
 
 This is its own firmware image. It updates the core firmware of the device (the C6) and nothing else. The order is:
 
-1. Build and flash **this application** to the Tab5 (P4) by itself.
+1. Flash **this application** to the Tab5 (P4) by itself: use the [prebuilt files](#prebuilt-files-no-build-needed), or build it yourself.
 2. Let it run until the log says the C6 reports the new version (`[PASS]`). The C6 keeps that firmware in its own flash.
 3. **Manually flash your own firmware** over it. This application is then gone from the P4 and
    isn't needed again unless the C6 firmware has to change.
 
 Nothing here flashes or bundles your P4 firmware: that step is yours.
+
+## Prebuilt files, no build needed
+
+Each [release](https://github.com/shadowlab/tab5-p4-c6-sdio-ota/releases) has the updater already built, with the ESP-Hosted
+v3.0.9 C6 firmware embedded, so there is nothing to download or compile besides [esptool](https://docs.espressif.com/projects/esptool/):
+
+```bash
+pip install esptool
+esptool --chip esp32p4 --baud 460800 --port <serial port> write_flash 0x0 tab5_c6_ota_merged.bin
+```
+
+Then follow the serial log (`idf.py monitor`, or any serial terminal at 115200 baud) until it prints `[PASS]`, and flash your own firmware.
+
+| File | What it is |
+|---|---|
+| `tab5_c6_ota_merged.bin` | The updater with bootloader and partition table in one file, written at 0x0 |
+| `tab5_c6_ota.bin`, `bootloader.bin`, `partition-table.bin` | The same as separate parts, offsets in `flash.txt` |
+| `network_adapter_esp32c6_v3.0.9.bin` | The ESP32-C6 firmware that gets sent (ESP-Hosted v3.0.9, ESPHome's build, unmodified). Already inside the files above, here for those who build the updater themselves: copy it to `firmware/network_adapter.bin` |
+| `flash.txt`, `SHA256SUMS` | Flash commands and checksums (`sha256sum -c SHA256SUMS`) |
+
+The first release has not been run on a Tab5. The P4 revision in the prebuilt files is "older than v3" (see [Build and flash](#build-and-flash)):
+for a v3 chip, build it yourself with the settings changed.
 
 ## Why
 
@@ -51,7 +73,7 @@ The OTA slots of the factory firmware: its partition table has two app slots of 
 ## Get a C6 firmware
 
 You need `network_adapter.bin` for the ESP32-C6 from the same esp-hosted-mcu release as the host (`^3.0.9` in
-`main/idf_component.yml`, which resolves to 3.0.9 today). Prebuilt images are not included in this repository.
+`main/idf_component.yml`, which resolves to 3.0.9 today). The image is not committed to the repository; releases attach it as `network_adapter_esp32c6_v3.0.9.bin`, or download it as below. (Only needed if you build the updater yourself.)
 
 ESPHome publishes builds of the co-processor firmware, v3.0.9 is the version of the host:
 
