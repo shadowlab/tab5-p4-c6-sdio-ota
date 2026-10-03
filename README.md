@@ -166,6 +166,13 @@ That restores M5Stack's **factory** C6 firmware, not ESP-Hosted 3.0.9, so afterw
 straight over the UART is not covered by M5Stack's page and has not been tried here. Follow M5Stack's page for the details (how the
 device is put into download mode, voltages) and check your board before connecting anything.
 
+**M5Burner is not required.** The pads are a plain serial link to the ESP32-C6's ROM bootloader, so any ESP flashing tool that supports the
+ESP32-C6 can talk to it: `esptool` (`--chip esp32c6`), Espressif's Flash Download Tool, a browser-based flasher. What M5Burner adds is that it
+fetches M5Stack's factory image for you; with another tool you must supply the image and its flash offsets yourself, which M5Stack's page
+doesn't list (this README doesn't either). Two general ESP32-C6 facts, not from M5Stack's page: the chip enters download mode when GPIO9
+(the `G9` pad) is held low while it resets (the `RST` pad), which an adapter with auto-reset wired to those two pads does for you, and
+otherwise you do by hand by briefly joining `G9` to `GND` as you reset it.
+
 ## Project structure
 
 ```
