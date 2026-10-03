@@ -138,6 +138,10 @@ The OTA writes the inactive slot, and an image over `TAB5_C6_OTA_MAX_IMAGE_SIZE`
 The Tab5 PCB has a reserved, internal download interface (UART pads) for the ESP32-C6. It is the way back in when the SDIO update
 can't work or has left the C6 in a boot loop, because the ROM download mode of the ESP32-C6 doesn't depend on the firmware that is on it.
 
+**You need a USB-TTL converter** (USB to serial adapter) to reach those pads from a computer: either M5Stack's own
+[ESP32 Downloader](https://shop.m5stack.com/products/esp32-downloader-kit), which fits them directly, or any other converter with 3.3 V
+logic levels, wired as described below.
+
 M5Stack documents the procedure in
 [Tab5 ESP32-C6 Wi-Fi Module Restore Factory Firmware](https://docs.m5stack.com/en/guide/tab5/c6_wifi_restore):
 
