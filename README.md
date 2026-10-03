@@ -70,33 +70,11 @@ The log marks what happens with `[PHASE]`, `[PASS]`, `[FAIL]`, `[WARN]` and `[DI
 The OTA slots of the factory firmware: its partition table has two app slots of 0x180000 (1.5 MB) at 0x10000 and
 0x190000, taken from the image in M5Stack's repository. An image bigger than that is refused.
 
-## Get a C6 firmware
-
-You need `network_adapter.bin` for the ESP32-C6 from the same esp-hosted-mcu release as the host (`^3.0.9` in
-`main/idf_component.yml`, which resolves to 3.0.9 today). The image is not committed to the repository; releases attach it as `network_adapter_esp32c6_v3.0.9.bin`, or download it as below. (Only needed if you build the updater yourself.)
-
-ESPHome publishes builds of the co-processor firmware, v3.0.9 is the version of the host:
-
-```bash
-curl -L -o firmware/network_adapter.bin \
-    https://esphome.github.io/esp-hosted-firmware/v3.0.9/network_adapter_esp32c6.bin
-```
-
-The file as downloaded on 2026-10-02 (SHA-256 `80e85881783840ff7c533878b679b9a6d72c426d0696e2f15ee064ca8b6c12db`, compare it, the
-site may publish a newer build under the same name):
-
-- 1,399,872 bytes, a complete ESP image (5 segments, SHA-256 appended), built for the **ESP32-C6** (chip id 13), flash mode **DIO**.
-  It fits the 1.5 MB slot of the Tab5's C6 with about 170 KB to spare.
-- Project name `eh_cp_bt_wifi_hosted_hci_mcu`: Wi-Fi **and** the Bluetooth controller (HCI over the ESP-Hosted transport) for an MCU host.
-  The image contains the co-processor's Bluetooth feature (`eh_cp_feat_bt`) and the BLE link layer, so it should serve Bluetooth LE
-  controllers as well as Wi-Fi. This comes from looking at the file, it has not been run.
-- It embeds in this application and the application builds with it (ESP-IDF 6.1).
-
-**Check the image** (`esptool image_info`, or the log of this application when it starts): chip ESP32-C6, flash mode DIO
-(the CrowPanel author saw failed OTAs with QIO images, the factory image of the Tab5 is DIO), and not bigger than the slots of
-the C6 (1.5 MB). The application accepts any project name starting with `eh_cp_` (like the ESPHome image, `eh_cp_bt_wifi_hosted_hci_mcu`) or `network_adapter`.
-
 ## Build and flash
+
+Only needed if you don't use the [prebuilt files](#prebuilt-files-no-build-needed). The build embeds the C6 firmware, so first save
+`network_adapter_esp32c6_v3.0.9.bin` from the [latest release](https://github.com/shadowlab/tab5-p4-c6-sdio-ota/releases) as
+`firmware/network_adapter.bin`.
 
 ```bash
 . $IDF_PATH/export.sh            # ESP-IDF 6.1
