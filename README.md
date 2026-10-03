@@ -142,9 +142,22 @@ M5Stack documents the procedure in
 [Tab5 ESP32-C6 Wi-Fi Module Restore Factory Firmware](https://docs.m5stack.com/en/guide/tab5/c6_wifi_restore):
 
 1. Get M5Stack's **M5Burner** and download the Tab5 Wi-Fi (SDIO) factory firmware in it.
-2. Connect a USB-TTL converter to the download interface. M5Stack uses its official
-   [ESP32 Downloader](https://shop.m5stack.com/products/esp32-downloader-kit), whose pinout matches the interface, so it plugs on directly. The page
-   shows the connection in a picture; the pad pinout is not written down in text, so use that picture.
+2. Connect a USB-TTL converter to the download interface: a row of six pads next to the C6 module, beside the Wi-Fi symbol printed on
+   the board. M5Stack uses its official [ESP32 Downloader](https://shop.m5stack.com/products/esp32-downloader-kit), whose six pins
+   plug straight onto those pads (its photo is on M5Stack's page). Matching the labels, read from that photo (the pad text is small,
+   check it on your own board):
+
+   | ESP32 Downloader | Tab5 pad | Meaning |
+   |---|---|---|
+   | GND | GND | ground |
+   | G0 | G9 | C6 GPIO9, the boot (strapping) pin |
+   | EN | RST | C6 reset |
+   | TXD | RXD0 | the adapter's TX goes to the C6's RX |
+   | RXD | TXD0 | the adapter's RX goes to the C6's TX |
+   | 3.3V | 3V3 | 3.3 V |
+
+   With a different USB-TTL converter, wire it the same way (TX and RX crossed). Whether the pads can also power the C6 on their own, and
+   how the board is powered during the flash, is not stated by M5Stack; follow their page.
 3. With the device in download mode, pick the serial port in M5Burner and click **Burn**.
 
 That restores M5Stack's **factory** C6 firmware, not ESP-Hosted 3.0.9, so afterwards run this updater again. Flashing the 3.0.9 image
