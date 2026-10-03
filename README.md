@@ -143,21 +143,22 @@ M5Stack documents the procedure in
 
 1. Get M5Stack's **M5Burner** and download the Tab5 Wi-Fi (SDIO) factory firmware in it.
 2. Connect a USB-TTL converter to the download interface: a row of six pads next to the C6 module, beside the Wi-Fi symbol printed on
-   the board. M5Stack uses its official [ESP32 Downloader](https://shop.m5stack.com/products/esp32-downloader-kit), whose six pins
-   plug straight onto those pads (its photo is on M5Stack's page). Matching the labels, read from that photo (the pad text is small,
-   check it on your own board):
+   the board. M5Stack uses its official [ESP32 Downloader](https://shop.m5stack.com/products/esp32-downloader-kit), whose six pins are in
+   the same order as the pads and plug straight onto them, nothing to wire (its photo is on M5Stack's page). The pads, as read from that
+   photo (the text is small, check it on your own board):
 
-   | ESP32 Downloader | Tab5 pad | Meaning |
-   |---|---|---|
-   | GND | GND | ground |
-   | G0 | G9 | C6 GPIO9, the boot (strapping) pin |
-   | EN | RST | C6 reset |
-   | TXD | RXD0 | the adapter's TX goes to the C6's RX |
-   | RXD | TXD0 | the adapter's RX goes to the C6's TX |
-   | 3.3V | 3V3 | 3.3 V |
+   | Pad | Meaning |
+   |---|---|
+   | GND | ground |
+   | G9 | C6 GPIO9, the boot (strapping) pin |
+   | RST | C6 reset |
+   | RXD0 | C6 UART receive |
+   | TXD0 | C6 UART transmit |
+   | 3V3 | 3.3 V |
 
-   With a different USB-TTL converter, wire it the same way (TX and RX crossed). Whether the pads can also power the C6 on their own, and
-   how the board is powered during the flash, is not stated by M5Stack; follow their page.
+   With any other USB-TTL converter, wire it by these names: the adapter's TX goes to RXD0 and its RX to TXD0 (the names are the C6's).
+   Whether the pads can also power the C6 on their own, and how the board is powered during the flash, is not stated by M5Stack; follow
+   their page.
 3. With the device in download mode, pick the serial port in M5Burner and click **Burn**.
 
 That restores M5Stack's **factory** C6 firmware, not ESP-Hosted 3.0.9, so afterwards run this updater again. Flashing the 3.0.9 image
