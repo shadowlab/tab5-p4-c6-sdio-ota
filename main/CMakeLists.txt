@@ -2,7 +2,7 @@
 set(C6_FIRMWARE "${CMAKE_CURRENT_SOURCE_DIR}/../firmware/network_adapter.bin")
 if(NOT EXISTS "${C6_FIRMWARE}")
     message(FATAL_ERROR "Missing ${C6_FIRMWARE}\n"
-        "Copy the ESP32-C6 ESP-Hosted firmware (network_adapter.bin) there, README.md explains how to get one.")
+        "Download network_adapter_esp32c6_v3.0.9.bin from the latest release and save it there as network_adapter.bin.")
 endif()
 
 idf_component_register(SRCS "main.c" "tab5_power.c"
