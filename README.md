@@ -49,7 +49,7 @@ The Tab5 ships with a C6 running ESP-Hosted slave firmware 1.4.1 (`ESP32C6-WiFi-
 M5Stack's `M5Tab5-UserDemo`, which pairs it with ESP-Hosted host 1.4.0). This application uses ESP-Hosted host
 3.0.x, and the host and the co-processor are expected to run matching versions. The C6 has no USB port and no
 UART that the P4 or an external connector can reach, so the easy way to change its firmware is the SDIO link, which is what this does
-(internal UART pads are the fallback, see below).
+(the C6's internal download interface is the fallback, see below).
 
 The same image also decides what the C6 can do: Bluetooth needs a firmware built with the BT controller enabled, see below.
 
@@ -125,26 +125,31 @@ The OTA writes the inactive slot, and an image over `TAB5_C6_OTA_MAX_IMAGE_SIZE`
 
 - **No answer from the C6.** This host speaks ESP-Hosted 3.x and the factory firmware is 1.4.1. If the two don't understand each other
   the transport doesn't come up and nothing can be sent over it. This is the main thing that has not been tried. The fallback is
-  the C6's UART, see [If updating fails](#if-updating-fails-the-c6-uart-pads).
+  the C6's UART, see [If updating fails](#if-updating-fails-the-c6-download-interface).
 - **Old firmware without the separate activate call.** Firmware older than 2.6 switches to the new image when the transfer
   ends. The activate call then fails, which the application logs as a warning and verifies by reading the version.
 - **A bad image.** The C6 has no rollback: an image that passes the checks but crashes leaves it in a boot loop, and only
-  its download mode brings it back, see [If updating fails](#if-updating-fails-the-c6-uart-pads).
+  its download mode brings it back, see [If updating fails](#if-updating-fails-the-c6-download-interface).
 - **The transfer stops half way** ([FAIL] OTA write): the current firmware is untouched. Lower the clock or the chunk size.
 - Only the Tab5 was considered. The pin and power set-up in `main/tab5_power.c` and `sdkconfig.defaults` is its.
 
-## If updating fails: the C6 UART pads
+## If updating fails: the C6 download interface
 
-The Tab5 has physical, internal UART pads for the C6 (opening the case is needed). They are the way back in when the SDIO update
+The Tab5 PCB has a reserved, internal download interface (UART pads) for the ESP32-C6. It is the way back in when the SDIO update
 can't work or has left the C6 in a boot loop, because the ROM download mode of the ESP32-C6 doesn't depend on the firmware that is on it.
 
-With a 3.3 V USB-UART adapter on those pads, `esptool` can write the C6 directly. M5Stack's `M5Tab5-UserDemo` repository has a
-`flash.sh` with the command for its image (`write_flash 0x0 ...bin`, a full image with bootloader, so it also replaces a damaged
-bootloader or partition table). The download mode also needs the C6's boot strapping pin held low while it is reset (GPIO9 on the
-ESP32-C6); whether the Tab5 brings that pin out as a pad is not documented here.
+M5Stack documents the procedure in
+[Tab5 ESP32-C6 Wi-Fi Module Restore Factory Firmware](https://docs.m5stack.com/en/guide/tab5/c6_wifi_restore):
 
-Which pad is which, where they are and what else is needed has **not been verified for this repository**: check it on your own board
-(schematic, M5Stack documentation) before connecting anything, and never power the C6 from the adapter.
+1. Get M5Stack's **M5Burner** and download the Tab5 Wi-Fi (SDIO) factory firmware in it.
+2. Connect a USB-TTL converter to the download interface. M5Stack uses its official
+   [ESP32 Downloader](https://shop.m5stack.com/products/esp32-downloader-kit), whose pinout matches the interface, so it plugs on directly. The page
+   shows the connection in a picture; the pad pinout is not written down in text, so use that picture.
+3. With the device in download mode, pick the serial port in M5Burner and click **Burn**.
+
+That restores M5Stack's **factory** C6 firmware, not ESP-Hosted 3.0.9, so afterwards run this updater again. Flashing the 3.0.9 image
+straight over the UART is not covered by M5Stack's page and has not been tried here. Follow M5Stack's page for the details (how the
+device is put into download mode, voltages) and check your board before connecting anything.
 
 ## Project structure
 
