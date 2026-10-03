@@ -38,7 +38,7 @@ Configured through ESP-Hosted's `CONFIG_ESP32P4_TAB5_C6_BOARD` preset.
 | ota_1 | 0x190000 | 0x180000 |
 
 Two app slots, no factory partition. The OTA writes the inactive slot. There is no rollback on the C6: an image that boots and
-then crashes leaves it in a boot loop, recoverable only through the C6 download mode (UART and boot pad, not covered here).
+then crashes leaves it in a boot loop, recoverable only through the C6 download mode over the internal UART pads (see the README, "If updating fails").
 
 Factory firmware: ESP-Hosted slave 1.4.1 (`ESP32C6-WiFi-SDIO-Interface-V1.4.1`), the one in M5Stack's `M5Tab5-UserDemo`.
 

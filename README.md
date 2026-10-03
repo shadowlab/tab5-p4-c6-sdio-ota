@@ -47,8 +47,9 @@ for a v3 chip, build it yourself with the settings changed.
 
 The Tab5 ships with a C6 running ESP-Hosted slave firmware 1.4.1 (`ESP32C6-WiFi-SDIO-Interface-V1.4.1`, the file in
 M5Stack's `M5Tab5-UserDemo`, which pairs it with ESP-Hosted host 1.4.0). This application uses ESP-Hosted host
-3.0.x, and the host and the co-processor are expected to run matching versions. The stock firmware of the C6 has no UART or
-USB port on the board, so the way to change it is the SDIO link, which is what this does.
+3.0.x, and the host and the co-processor are expected to run matching versions. The C6 has no USB port and no
+UART that the P4 or an external connector can reach, so the easy way to change its firmware is the SDIO link, which is what this does
+(internal UART pads are the fallback, see below).
 
 The same image also decides what the C6 can do: Bluetooth needs a firmware built with the BT controller enabled, see below.
 
@@ -123,16 +124,27 @@ The OTA writes the inactive slot, and an image over `TAB5_C6_OTA_MAX_IMAGE_SIZE`
 ## Things that can go wrong
 
 - **No answer from the C6.** This host speaks ESP-Hosted 3.x and the factory firmware is 1.4.1. If the two don't understand each other
-  the transport doesn't come up and nothing can be sent over it. This is the main thing that has not been tried. The other way
-  to change the C6 firmware is its download mode through test pads, not covered here. M5Stack's demo repository has a
-  `flash.sh` with the esptool command for its image (`write_flash 0x0 ...bin`), which needs the C6 UART and boot pad to be
-  reachable.
+  the transport doesn't come up and nothing can be sent over it. This is the main thing that has not been tried. The fallback is
+  the C6's UART, see [If updating fails](#if-updating-fails-the-c6-uart-pads).
 - **Old firmware without the separate activate call.** Firmware older than 2.6 switches to the new image when the transfer
   ends. The activate call then fails, which the application logs as a warning and verifies by reading the version.
 - **A bad image.** The C6 has no rollback: an image that passes the checks but crashes leaves it in a boot loop, and only
-  its download mode brings it back.
+  its download mode brings it back, see [If updating fails](#if-updating-fails-the-c6-uart-pads).
 - **The transfer stops half way** ([FAIL] OTA write): the current firmware is untouched. Lower the clock or the chunk size.
 - Only the Tab5 was considered. The pin and power set-up in `main/tab5_power.c` and `sdkconfig.defaults` is its.
+
+## If updating fails: the C6 UART pads
+
+The Tab5 has physical, internal UART pads for the C6 (opening the case is needed). They are the way back in when the SDIO update
+can't work or has left the C6 in a boot loop, because the ROM download mode of the ESP32-C6 doesn't depend on the firmware that is on it.
+
+With a 3.3 V USB-UART adapter on those pads, `esptool` can write the C6 directly. M5Stack's `M5Tab5-UserDemo` repository has a
+`flash.sh` with the command for its image (`write_flash 0x0 ...bin`, a full image with bootloader, so it also replaces a damaged
+bootloader or partition table). The download mode also needs the C6's boot strapping pin held low while it is reset (GPIO9 on the
+ESP32-C6); whether the Tab5 brings that pin out as a pad is not documented here.
+
+Which pad is which, where they are and what else is needed has **not been verified for this repository**: check it on your own board
+(schematic, M5Stack documentation) before connecting anything, and never power the C6 from the adapter.
 
 ## Project structure
 
