@@ -52,6 +52,12 @@ jobs:
             build/partition_table/partition-table.bin
             build/flasher_args.json
 
+      # The exact C6 image that was embedded in this build, so a release ships the same file
+      - uses: actions/upload-artifact@v4
+        with:
+          name: c6-firmware
+          path: firmware/network_adapter.bin
+
   release:
     name: Publish release
     if: startsWith(github.ref, 'refs/tags/v')
@@ -65,20 +71,41 @@ jobs:
           name: tab5_c6_ota-idf-v6.1
           path: artifact
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: c6-firmware
+          path: c6
+
       - name: Collect the files
         run: |
+          pip install --quiet "esptool>=5"
           mkdir release
           cp artifact/tab5_c6_ota.bin artifact/flasher_args.json release/
           cp artifact/bootloader/bootloader.bin artifact/partition_table/partition-table.bin release/
-          # The flash command, with the offsets the build itself reports
-          python3 - <<'PY' > release/flash.txt
+          # The C6 firmware that is embedded in tab5_c6_ota.bin, as a file of its own
+          cp c6/network_adapter.bin release/network_adapter_esp32c6_v3.0.9.bin
+
+          # Offsets as the build itself reports them
+          python3 - <<'PY' > release/offsets.txt
           import json
           a = json.load(open("release/flasher_args.json"))
-          files = " ".join(f"{off} {path.split('/')[-1]}" for off, path in sorted(a["flash_files"].items(), key=lambda kv: int(kv[0], 16)))
-          print(f"esptool --chip esp32p4 --baud 460800 write_flash {files}")
+          for off, path in sorted(a["flash_files"].items(), key=lambda kv: int(kv[0], 16)):
+              print(off, path.split("/")[-1])
           PY
-          cat release/flash.txt
-          cd release && sha256sum *.bin > SHA256SUMS
+          cd release
+          # One file with bootloader, partition table and application, to be written at 0x0
+          esptool --chip esp32p4 merge-bin -o tab5_c6_ota_merged.bin $(tr '\n' ' ' < offsets.txt)
+          {
+            echo "# Everything in one file (written at 0x0):"
+            echo "esptool --chip esp32p4 --baud 460800 write_flash 0x0 tab5_c6_ota_merged.bin"
+            echo
+            echo "# Or the three parts separately:"
+            echo "esptool --chip esp32p4 --baud 460800 write_flash $(tr '\n' ' ' < offsets.txt)"
+          } > flash.txt
+          rm offsets.txt
+          cat flash.txt
+          sha256sum *.bin > SHA256SUMS
+          cat SHA256SUMS
 
       - name: Publish
         uses: softprops/action-gh-release@v2
@@ -87,13 +114,20 @@ jobs:
           generate_release_notes: true
           files: release/*
           body: |
-            Updates the firmware of the ESP32-C6 co-processor of the M5Stack Tab5 over SDIO. Flash it on its own, wait for
-            `[PASS]` in the serial log, then flash your own firmware over it. See the README.
+            Prebuilt files for updating the firmware of the ESP32-C6 co-processor of the M5Stack Tab5 over SDIO. Flash the updater
+            on its own, wait for `[PASS]` in the serial log, then flash your own firmware over it. See the README.
+
+            | File | What it is |
+            |---|---|
+            | `tab5_c6_ota_merged.bin` | **Start here.** The updater with bootloader and partition table in one file, written at 0x0 |
+            | `tab5_c6_ota.bin`, `bootloader.bin`, `partition-table.bin` | The same, as separate parts (offsets in `flash.txt`) |
+            | `network_adapter_esp32c6_v3.0.9.bin` | The ESP32-C6 firmware (ESP-Hosted v3.0.9) that the updater sends. Already embedded in the files above, provided on its own for those who build the updater themselves |
+            | `flash.txt`, `SHA256SUMS`, `flasher_args.json` | Flash commands, checksums, build metadata |
+
+            Flash command: `esptool --chip esp32p4 --baud 460800 write_flash 0x0 tab5_c6_ota_merged.bin` (add `--port <port>`).
 
             **Not run on a Tab5 yet.** Built with ESP-IDF 6.1. The factory C6 firmware (ESP-Hosted 1.4.1) may not be able to talk to this
             3.x host, and the C6 has no rollback.
 
-            The application embeds the ESP32-C6 ESP-Hosted v3.0.9 image published by ESPHome
-            (https://esphome.github.io/esp-hosted-firmware/), which is built from Espressif's Apache-2.0 esp-hosted-mcu.
-
-            Flash command: see `flash.txt` (run it from the folder with the downloaded files, add `--port <port>`). Checksums in `SHA256SUMS`.
+            The C6 firmware is the ESP32-C6 ESP-Hosted v3.0.9 image published by ESPHome
+            (https://esphome.github.io/esp-hosted-firmware/), built from Espressif's Apache-2.0 esp-hosted-mcu, redistributed unmodified.
