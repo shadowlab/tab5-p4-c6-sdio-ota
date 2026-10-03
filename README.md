@@ -144,19 +144,20 @@ M5Stack documents the procedure in
 1. Get M5Stack's **M5Burner** and download the Tab5 Wi-Fi (SDIO) factory firmware in it.
 2. Connect a USB-TTL converter to the download interface: a row of six pads next to the C6 module, beside the Wi-Fi symbol printed on
    the board. M5Stack uses its official [ESP32 Downloader](https://shop.m5stack.com/products/esp32-downloader-kit), whose six pins are in
-   the same order as the pads and plug straight onto them, nothing to wire (its photo is on M5Stack's page). The pads, as read from that
-   photo (the text is small, check it on your own board):
+   the same order as the pads and plug straight onto them, nothing to wire (its photo is on M5Stack's page). The silkscreen of the
+   pads, in order:
 
    | Pad | Meaning |
    |---|---|
    | GND | ground |
    | G9 | C6 GPIO9, the boot (strapping) pin |
    | RST | C6 reset |
-   | RXD0 | C6 UART receive |
-   | TXD0 | C6 UART transmit |
+   | RXD | C6 UART receive |
+   | TXD | C6 UART transmit |
    | 3V3 | 3.3 V |
 
-   With any other USB-TTL converter, wire it by these names: the adapter's TX goes to RXD0 and its RX to TXD0 (the names are the C6's).
+   Without the M5Stack Downloader, wire another USB-TTL converter by these names: the adapter's TX goes to the pad `RXD` and its RX to
+   the pad `TXD` (the pad names are the C6's, so the lines cross).
    Whether the pads can also power the C6 on their own, and how the board is powered during the flash, is not stated by M5Stack; follow
    their page.
 3. With the device in download mode, pick the serial port in M5Burner and click **Burn**.
