@@ -96,31 +96,6 @@ Settings (`idf.py menuconfig`, "Tab5 C6 OTA"): chunk size, the largest image acc
 for the reboot. The SDIO clock is `CONFIG_ESP_HOSTED_HOST_SDIO_CLK_KHZ` in `sdkconfig.defaults` (20000), try 10000 if the
 transfer fails.
 
-## Partition layouts
-
-**P4 (`partitions.csv`).** The C6 image is embedded in the application, so
-there is no `otadata` and no LittleFS partition, unlike the CrowPanel original:
-
-```
-Offset     Name       Type/Subtype   Size
-0x009000   nvs        data/nvs       16 KB
-0x00F000   phy_init   data/phy       4 KB
-0x010000   factory    app/factory    3 MB    this application, embeds the C6 image
-```
-
-`idf.py flash` also writes the bootloader and the partition table (at 0x8000). Flashing your own firmware afterwards writes
-its own partition table, follow its instructions for that step.
-
-**C6 (set by the factory firmware, not changed by an OTA).** Two app slots, taken from the image in M5Stack's repository:
-
-```
-Offset     Name    Size
-0x010000   ota_0   0x180000 (1.5 MB)
-0x190000   ota_1   0x180000 (1.5 MB)
-```
-
-The OTA writes the inactive slot, and an image over `TAB5_C6_OTA_MAX_IMAGE_SIZE` (0x180000) is refused before anything is sent.
-
 ## Things that can go wrong
 
 - **No answer from the C6.** This host speaks ESP-Hosted 3.x and the factory firmware is 1.4.1. If the two don't understand each other
