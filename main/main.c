@@ -189,7 +189,7 @@ void app_main(void)
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "[FAIL] No answer from the C6: %s (0x%x)", esp_err_to_name(err), err);
-        ESP_LOGE(TAG, "[DIAG] The factory firmware (1.4.1) may be too old to talk to this host version. If the C6 never");
+        ESP_LOGE(TAG, "[DIAG] The C6 may not be powered, or its firmware may be too old to talk to this host version. If the C6 never");
         ESP_LOGE(TAG, "[DIAG] answers it can only be flashed over its download mode, see README.md");
         halt();
     }

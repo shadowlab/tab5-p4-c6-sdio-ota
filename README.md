@@ -48,8 +48,9 @@ for a v3 chip, build it yourself with the settings changed.
 
 ## Why
 
-The Tab5 ships with a C6 running ESP-Hosted slave firmware 1.4.1 (`ESP32C6-WiFi-SDIO-Interface-V1.4.1`, the file in
-M5Stack's `M5Tab5-UserDemo`, which pairs it with ESP-Hosted host 1.4.0). This application uses ESP-Hosted host
+The Tab5 ships with a C6 running ESP-Hosted slave firmware. M5Stack's `M5Tab5-UserDemo` repository includes one, 1.4.1
+(`ESP32C6-WiFi-SDIO-Interface-V1.4.1`), paired there with ESP-Hosted host 1.4.0. **Which version a given Tab5 really has is unverified**:
+it was not read from a unit, and it may differ. This application uses ESP-Hosted host
 3.0.x, and the host and the co-processor are expected to run matching versions. The C6 has no USB port and no
 UART that the P4 or an external connector can reach, so the easy way to change its firmware is the SDIO link, which is what this does
 (the C6's internal download interface is the fallback, see below).
@@ -71,8 +72,9 @@ The same image also decides what the C6 can do: Bluetooth needs a firmware built
 
 The log marks what happens with `[PHASE]`, `[PASS]`, `[FAIL]`, `[WARN]` and `[DIAG]`.
 
-The OTA slots of the factory firmware: its partition table has two app slots of 0x180000 (1.5 MB) at 0x10000 and
-0x190000, taken from the image in M5Stack's repository. An image bigger than that is refused.
+The OTA slots: the partition table of M5Stack's C6 image has two app slots of 0x180000 (1.5 MB) at 0x10000 and
+0x190000. That layout is not verified on a stock unit, but the 1.4 MB image of this project went through on the one Tab5 tried. An image
+bigger than 0x180000 is refused.
 
 ## Build and flash
 
@@ -101,7 +103,7 @@ transfer fails.
 
 ## Things that can go wrong
 
-- **No answer from the C6.** This host speaks ESP-Hosted 3.x and the factory firmware is 1.4.1. If the two don't understand each other
+- **No answer from the C6.** This host speaks ESP-Hosted 3.x and the firmware the Tab5 ships with may be older (M5Stack's demo repository has 1.4.1, unverified on a unit). If the two don't understand each other
   the transport doesn't come up and nothing can be sent over it. On the one Tab5 tried, the host did connect and the update went
   through (the C6 version before the update was not logged). The fallback is
   the C6's UART, see [If updating fails](#if-updating-fails-the-c6-download-interface).
