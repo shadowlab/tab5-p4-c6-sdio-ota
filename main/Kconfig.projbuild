@@ -12,7 +12,7 @@ menu "Tab5 C6 OTA"
         hex "Largest image the C6 can take"
         default 0x180000
         help
-            Size of the OTA app slots of the C6 (the factory firmware that ships with the Tab5 has two of 0x180000).
+            Size of the OTA app slots of the C6 (M5Stack's C6 image has two of 0x180000, not verified on a stock unit).
             Bigger images are refused before anything is sent.
 
     config TAB5_C6_OTA_FORCE
