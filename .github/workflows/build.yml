@@ -126,8 +126,8 @@ jobs:
 
             Flash command: `esptool --chip esp32p4 --baud 460800 write_flash 0x0 tab5_c6_ota_merged.bin` (add `--port <port>`).
 
-            **Not run on a Tab5 yet.** Built with ESP-IDF 6.1. The factory C6 firmware (ESP-Hosted 1.4.1) may not be able to talk to this
-            3.x host, and the C6 has no rollback.
+            **Tried on one Tab5**, where the C6 ended up on ESP-Hosted 3.0.9, matching the host. Built with ESP-IDF 6.1. The C6 has no rollback:
+            an image that boots and then crashes needs the UART pads (see the README, "If updating fails").
 
             The C6 firmware is the ESP32-C6 ESP-Hosted v3.0.9 image published by ESPHome
             (https://esphome.github.io/esp-hosted-firmware/), built from Espressif's Apache-2.0 esp-hosted-mcu, redistributed unmodified.
