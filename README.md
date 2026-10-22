@@ -8,7 +8,10 @@ This application is independent of whatever firmware you run on the P4 afterward
 It is a fork and rework for the Tab5 of [crowpanel-p4-c6-sdio-ota](https://github.com/lboshuizen/crowpanel-p4-c6-sdio-ota) by
 lboshuizen, which does the same for the Elecrow CrowPanel 7" (see `NOTICE`).
 
-**Status: it builds in CI with ESP-IDF 6.1 (see `.github/workflows/build.yml`). It has not been run on a Tab5.**
+**Status: it builds in CI with ESP-IDF 6.1 (see `.github/workflows/build.yml`) and has been tried on one Tab5, where it worked.** The first
+update ran without the serial log being captured. A second run, with the log, found the C6 already at ESP-Hosted 3.0.9, the same as the host
+(`esp-hosted fw versions: host=3.0.9 coprocessor=3.0.9 (match)`), so the update had gone through. Not recorded: the C6 version before the
+update, the transfer time, and the messages of the update run itself. One board only; the prebuilt files, which are built for a P4 older than revision v3, booted on it.
 
 ## Workflow: update the C6, then flash your firmware
 
@@ -40,7 +43,7 @@ Then follow the serial log (`idf.py monitor`, or any serial terminal at 115200 b
 | `network_adapter_esp32c6_v3.0.9.bin` | The ESP32-C6 firmware that gets sent (ESP-Hosted v3.0.9, ESPHome's build, unmodified). Already inside the files above, here for those who build the updater themselves: copy it to `firmware/network_adapter.bin` |
 | `flash.txt`, `SHA256SUMS` | Flash commands and checksums (`sha256sum -c SHA256SUMS`) |
 
-The first release has not been run on a Tab5. The P4 revision in the prebuilt files is "older than v3" (see [Build and flash](#build-and-flash)):
+The P4 revision in the prebuilt files is "older than v3" (see [Build and flash](#build-and-flash)):
 for a v3 chip, build it yourself with the settings changed.
 
 ## Why
@@ -99,7 +102,8 @@ transfer fails.
 ## Things that can go wrong
 
 - **No answer from the C6.** This host speaks ESP-Hosted 3.x and the factory firmware is 1.4.1. If the two don't understand each other
-  the transport doesn't come up and nothing can be sent over it. This is the main thing that has not been tried. The fallback is
+  the transport doesn't come up and nothing can be sent over it. On the one Tab5 tried, the host did connect and the update went
+  through (the C6 version before the update was not logged). The fallback is
   the C6's UART, see [If updating fails](#if-updating-fails-the-c6-download-interface).
 - **Old firmware without the separate activate call.** Firmware older than 2.6 switches to the new image when the transfer
   ends. The activate call then fails, which the application logs as a warning and verifies by reading the version.
