@@ -1,5 +1,9 @@
 # Tab5: update the firmware of the ESP32-C6 over SDIO
 
+> **Final: this project is finished and will not be updated further.** [v1.0](https://github.com/shadowlab/tab5-p4-c6-sdio-ota/releases/tag/v1.0)
+> is the last release and the repository is archived (read-only). Issues and pull requests are no longer being handled. The code is Apache-2.0,
+> so you are free to fork it.
+
 A standalone ESP-IDF application that replaces the firmware of the ESP32-C6 co-processor of the
 [M5Stack Tab5](https://docs.m5stack.com/en/core/Tab5) through the SDIO link it shares with the ESP32-P4, with no soldering
 and no extra hardware. Wi-Fi and Bluetooth on the Tab5 go through the C6, and with ESP-Hosted 3.x on the P4 the C6 needs a matching firmware.
